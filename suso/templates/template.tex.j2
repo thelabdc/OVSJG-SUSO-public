@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+
+% Define WSU official colors
+\usepackage[dvinames]{xcolor}
+\definecolor{WSUcrimson}{RGB}{152,30,50}
+\definecolor{WSUgray}{HTML}{5e6a71}
+
+% Measurements are taken directly from the guide
+\usepackage[top=2in,left=1.5in,bottom=0.5in,right=0.625in]{geometry}
+\usepackage{graphicx}
+\usepackage[colorlinks=false,
+            pdfborder={0 0 0},
+            ]{hyperref}
+\usepackage[absolute]{textpos}
+\usepackage{ifthen}
+\usepackage{soul}
+
+%  --- Do not leave space between itemize items
+\usepackage{enumitem}
+\setlist{noitemsep}
+
+% --- For placement of the horizontal line
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% --- A nice serif font (palatino), but not the prescribed nonfree ITC stone
+\usepackage[sc,osf]{mathpazo}
+\linespread{1.05}
+
+% Remove paragraph indentation
+\parindent0pt
+\setlength{\parskip}{0.8\baselineskip}
+\raggedright
+\pagestyle{empty}
+% Ensure consistency in the footer
+\urlstyle{sf}
+
+\providecommand\WSUdate{\today}
+\providecommand\WSUlogofile{images/WSUlogo}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% \renewcommand{\footrulewidth}{0pt}
+% \fancyfoot{}
+% \fancyfoot[L]{%
+%     {\footnotesize\color{WSUgray}\sffamily
+%     \WSUfromaddress\\[-0.1\baselineskip]
+%     \WSUfromtel\ \textbullet\ Fax: \WSUfromfax\ \textbullet\ \WSUfromemail\ \textbullet\ \WSUfromweb}\color{black}}
+
+\fancyhead{}
+\fancyhead[L]{%
+    % \begin{textblock*}{2in}[0.3066,0.39](1.5in,1.33in)
+    %     \includegraphics[width=2in]{\WSUlogofile}
+    % \end{textblock*}
+    \begin{textblock*}{3in}(5in,0.5in)
+        \hfill \includegraphics[width=2.5in, height=1.25in, keepaspectratio]{\VAR{ school_image }} \\\vspace{0.25in}
+        \hfill \includegraphics[width=2.5in, height=1.25in, keepaspectratio]{\VAR{ cbo_image }}
+    \end{textblock*}
+    % \begin{tikzpicture}[remember picture,overlay]
+    %     \draw[color=WSUcrimson,line width=0.7pt] (current page.north west)+(1.5in,-1.33in) -- ($(-0.625in,-1.33in)+(current page.north east)$);
+    % \end{tikzpicture}
+}
+\renewcommand{\headrulewidth}{0pt}
+
+
+\AtBeginDocument{
+    % Text lines should be less than 6in long
+    \newgeometry{top=4in,left=1in,bottom=0.9in,right=1in}
+
+    \WSUdate
+    \bigskip
+
+    Dear \VAR{ guardian },\par
+    }
+
+\AtEndDocument{
+    \par\vspace{2ex}
+    I am here for you.
+
+    \bigskip
+    \VAR{ caseworker_name }\\
+    \VAR{ cbo_address }\\
+    Washington, DC \VAR{ cbo_zipcode }
+}
+
+\pagenumbering{gobble}
+
+\begin{document}
+
+I know getting your child to school every day can be hard, but {\bf you are not alone in this struggle}. \VAR{ school } and \VAR{ cbo_name } are joining forces to provide you with what you need to make this a great school year. 
+
+I work for \VAR{ cbo_name }.  We have already connected with many \VAR{ school } families to support them with: 
+\begin{itemize}
+  \item school supplies
+  \item bus and metro passes
+  \item clothes for school 
+  \item food 
+  \item housing resources
+  \item summer camp
+  \item and more.
+\end{itemize}
+I will reach out to you soon to ask how I can help your family and child succeed.  If you want to reach me before then, you can call me at \VAR{ contact_number }.
+
+\end{document}

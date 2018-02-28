@@ -1,0 +1,10 @@
+mailchimp3
+requests
+psycopg2
+jinja2
+beautifulsoup4
+lxml
+click
+pandas
+pyyaml
+pyodbc

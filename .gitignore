@@ -1,0 +1,15 @@
+# python cruft
+__pycache__
+.ipynb_checkpoints
+.cache
+*.egg-info
+
+# vim cruft
+*.swp
+
+# build files
+*.pdf
+venv
+
+# data files
+data
