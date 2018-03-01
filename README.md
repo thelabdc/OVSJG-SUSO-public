@@ -2,6 +2,10 @@
 
 Analyses and automation related to the OVSJG SUSO project.
 
+## Requirements
+
+You'll need Python 3.6 because we make liberal use of f-strings.
+
 ## Automation
 
 Much of this repository is dedicated to the automation of the letter sending process.
