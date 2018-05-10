@@ -19,8 +19,7 @@ You will then find the command `susocli` on your path. That command requires a c
 file, a template of which can be found in `config.template.yml`. You'll need to fill that
 out.
 
-The automation aspect of this is handled by the `Dockerfile`. This is run on a the
-ktensor box (10.56.6.64) as the following cron job:
+The automation aspect of this is handled by the `Dockerfile`. This is run as the following cron job:
 
 ```
 0 19-23 * * 1-5 docker run --rm -v /mnt/dockervols/suso:/work thelabdc/ovsjg-suso susocli run /suso/config.yml -t /work/tex -p /work/pdf >> /mnt/dockervols/suso/log 2>&1
