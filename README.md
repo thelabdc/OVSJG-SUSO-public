@@ -82,7 +82,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
 2. [020_createlookuptable_suso_osse.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/020_createlookuptable_suso_osse.ipynb)
 
   - _Takes in_:
-    - Data on SUSO participants: created as part of [010_merge_and_wrangle_suso.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/010_merge_and_wrangle_suso.ipynb)
+    - Data on SUSO participants: created as part of [010_merge_and_wrangle_suso.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/010_merge_and_wrangle_suso.ipynb)
     - Parquet attendance files created in previous script
 
   - _What it does_:
