@@ -1,0 +1,176 @@
+---
+title: Extra plots
+author: Rebecca Johnson
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+header-includes:
+  - \usepackage{float,booktabs,longtable,tabu,array}
+  - \usepackage[small]{caption}
+  - \captionsetup[table]{position=bottom}
+  - \floatplacement{figure}{H}  #make every figure with caption = h, this was the fix
+  - \floatplacement{table}{H}  #make every figure with caption = h, this was the fix
+output:
+  pdf_document:
+    fig_caption: yes
+    fig_height: 9
+    fig_width: 9
+    latex_engine: xelatex
+    keep_tex: true
+    keep_md: true
+    toc: true
+geometry: "left=1in,right=1in,top=1in,bottom=1in"
+graphics: yes
+fontsize: 11pt
+---
+
+# Miscellaneous plots in R to improve formatting
+
+```{r, include=FALSE, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+## redoing time distribution graph in R
+library(scales)
+library(caret)
+library(reshape2)
+library(here)
+
+theme_new <- function(base_size = 16, base_family = "Helvetica") {
+  theme_bw(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      panel.grid = element_blank(),
+      panel.border = element_rect(fill = NA, colour = "black", size = 1),
+      panel.background = element_rect(fill = "white", colour = "black"),
+      strip.background = element_rect(fill = NA),
+      axis.text.x = element_text(color = "black"),
+      axis.text.y = element_text(color = "black")
+    )
+}
+
+## fill colors
+treatment_color <- "#2B4888"
+control_color <- "#444444"
+
+source(here("src", "R", "400_additional_plots", "000_rmd_setup.R"))
+DATA_DIR <- here("data")
+OUTPUT_DIR <- here("output")
+```
+
+
+# 1. Delivery time plot
+
+
+```{r}
+df_suso <- read.csv(file.path(DATA_DIR, "df_suso_merged.csv"))
+```
+
+
+```{r}
+df_suso <- df_suso %>%
+  mutate(
+    delivery_date = as.Date(gsub("\\s+.*", "", status_datetime),
+      format = "%Y-%m-%d"
+    ),
+    referral_date_dt = as.Date(gsub("\\T.*", "", referral_date),
+      format = "%Y-%m-%d"
+    ),
+    delivery_time = delivery_date - referral_date_dt
+  )
+
+df_suso_validdelivery <- df_suso %>%
+  filter(!is.na(delivery_time) &
+    delivery_time < 30 &
+    delivery_time > 0)
+
+ggplot(df_suso_validdelivery, aes(x = delivery_time)) +
+  geom_histogram(fill = treatment_color, binwidth = 1, color = "black") +
+  theme_new() +
+  scale_x_continuous(breaks = c(seq(1, 28, by = 2))) +
+  xlab("Days until letter delivery (observed delivery dates)") +
+  ylab("Count of families")
+```
+
+
+```{r}
+ggsave(file.path(OUTPUT_DIR, "deliv_distribution.pdf"),
+  device = "pdf",
+  plot = last_plot(),
+  width = 12,
+  height = 8
+)
+```
+
+
+# 2. Balance in demographic attributes plot
+
+
+```{r}
+attributes <- read.csv(file.path(DATA_DIR, "attendance_readyforregressions.csv"))
+```
+
+
+```{r}
+dem <- c(
+  "LEPIndicator", "AtRiskIndicator",
+  "Economically_Disadvantaged", "FarmsStatusSISdesc", "HomelessIndicatorOSSE",
+  "SEDSSPEDLEvel",
+  "School_CEP_Status",
+  "gender",
+  "race_broadercat", "is_treatment"
+)
+
+to_graph <- attributes[, dem]
+```
+
+
+```{r}
+dem_indic <- dummyVars(" ~ .", data = to_graph)
+dem_indic_df <- data.frame(predict(dem_indic, newdata = to_graph))
+
+colnames(dem_indic_df) <- gsub("\\.False", "_no", colnames(dem_indic_df))
+colnames(dem_indic_df) <- gsub("\\.True", "_yes", colnames(dem_indic_df))
+colnames(dem_indic_df) <- gsub("\\.", "_", colnames(dem_indic_df))
+colnames(dem_indic_df) <- tolower(colnames(dem_indic_df))
+colnames(dem_indic_df) <- gsub("race\\_broadercat\\_", "", colnames(dem_indic_df))
+
+```
+
+
+```{r}
+prop_by_treat <- dem_indic_df %>%
+  dplyr::select(-is_treatmentfalse) %>%
+  group_by(is_treatmenttrue) %>%
+  summarise_all(funs(mean(.)), na.rm = TRUE) %>%
+  mutate(id = 1:2)
+
+treatment_indic <- "is_treatmenttrue"
+prop_by_treat_long <- melt(prop_by_treat, id.vars = treatment_indic)
+prop_by_treat_wide <- dcast(prop_by_treat_long,
+  formula(sprintf("variable ~ %s", treatment_indic)),
+  value.var = "value"
+)
+
+colnames(prop_by_treat_wide) <- c("var", "control", "treatment")
+```
+
+
+```{r}
+prop_by_treat_wide <- prop_by_treat_wide %>% mutate(tx_minus_control = (treatment - control) * 100)
+prop_tograph <- prop_by_treat_wide %>%
+  filter(grepl("no", var) == FALSE & var != "id" & grepl("spedlevel", var) == FALSE)
+
+# prop_tograph
+
+ggplot(prop_tograph, aes(x = var, y = tx_minus_control)) +
+  geom_bar(stat = "identity", fill = treatment_color) +
+  theme_new() +
+  xlab("Covariate") +
+  ylab("Percentage point difference:\ntreatment minus control group\n(positive = higher in treatment;\nnegative = lower in treatment)") +
+  coord_flip()
+
+ggsave(file.path(OUTPUT_DIR, "covar_balance.pdf"),
+  device = "pdf",
+  plot = last_plot(),
+  width = 12,
+  height = 8
+)
+```

@@ -1,0 +1,128 @@
+---
+title: AB Tests additional plots
+author: Rebecca Johnson
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+header-includes:
+  - \usepackage{float,booktabs,longtable,tabu,array}
+  - \usepackage[small]{caption}
+  - \captionsetup[table]{position=bottom}
+  - \floatplacement{figure}{H}  #make every figure with caption = h, this was the fix
+  - \floatplacement{table}{H}  #make every figure with caption = h, this was the fix
+output:
+  pdf_document:
+    fig_caption: yes
+    fig_height: 9
+    fig_width: 9
+    latex_engine: xelatex
+    keep_tex: true
+    keep_md: true
+    toc: true
+geometry: "left=1in,right=1in,top=1in,bottom=1in"
+graphics: yes
+fontsize: 11pt
+---
+
+# Additional plotting of posteriors
+
+```{r, include=FALSE, echo=FALSE}
+library(ggplot2)
+library(dplyr)
+library(here)
+
+source(here("src", "R", "400_additional_plots", "000_rmd_setup.R"))
+
+standard_background_R <- theme(
+  panel.background = element_blank(),
+  panel.grid.major.y = element_blank(),
+  axis.text.x = element_text(color = "black", size = 12),
+  axis.text.y = element_text(color = "black", size = 12),
+  legend.text = element_text(color = "black", size = 10),
+  legend.title = element_text(color = "black", size = 12),
+  axis.title = element_text(size = 12),
+  strip.text.x = element_text(size = 12),
+  legend.background = element_blank(),
+  legend.key = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.ticks = element_blank()
+)
+
+DATA_DIR <- here("data")
+```
+
+
+```{r}
+posteriors <- read.csv(file.path(DATA_DIR, "attendanceandengageoutcomes_posteriors_toplot.csv"))
+```
+
+
+```{r}
+head(posteriors)
+```
+
+
+```{r}
+plot_posterior <- function(posteriors, varname, name_outcome, type_outcome = "rate") {
+  first_plot <- ggplot(posteriors, aes(x = posteriors[[varname]])) +
+    geom_density() +
+    standard_background_R +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "red", size = 1.5) +
+    ylab("Density of draws") +
+    xlab(sprintf(
+      "Posterior difference in %s: treatment minus control\n(neg.: treatment group had lower %s\npos.: treatment group had higher %s\nzero: same %s)",
+      name_outcome,
+      type_outcome, type_outcome, type_outcome
+    ))
+
+  plot_data <- ggplot_build(first_plot)$data[[1]]
+
+  final_plot <- first_plot + geom_area(
+    data = subset(plot_data, x <= 0),
+    aes(x = x, y = y), fill = "#2B4888"
+  )
+
+  return(final_plot)
+}
+```
+
+
+```{r}
+plot_posterior(posteriors, "truancy", "truancy rate")
+```
+
+
+```{r}
+plot_posterior(posteriors, "ca", "chronic absenteeism rate")
+```
+
+
+```{r}
+plot_posterior(
+  posteriors, "unex_obs", "count of unexcused absences\nover two weeks (using observed delivery date)",
+  "count"
+)
+```
+
+
+```{r}
+plot_posterior(
+  posteriors, "unexandex_obs", "count of unexcused or excused absences\nover two weeks (using observed delivery date)",
+  "count"
+)
+```
+
+
+```{r}
+plot_posterior(
+  posteriors, "unex_median", "count of unexcused absences\nover two weeks (assume 7 day delivery timeline)\n",
+  "count"
+)
+```
+
+
+```{r}
+plot_posterior(
+  posteriors, "unexandex_median", "count of unexcused or excused absences\nover two weeks (assume 7 day delivery timeline)\n",
+  "count"
+)
+```

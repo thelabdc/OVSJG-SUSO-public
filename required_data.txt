@@ -1,0 +1,21 @@
+# GIS Data from opendata.dc.gov
+Charter_Schools.geojson
+Public_Schools.geojson
+wards.geojson
+school_locations.csv
+
+# Data from OSSE
+SY1718_Charter_Sector_Attendance_cleaned.csv.gz
+SY1718_DCPS_Attendance_Data_cleaned.csv.gz
+redacted_SY1617_Charter_Sector_Attendance.csv.gz
+redacted_SY1617_DCPS_Sector_Attendance.csv.gz
+students.csv
+
+# Data from ETO and click2mail
+data_for_analysis.csv
+suso_participants.csv
+randomizer.csv
+returned_letters.csv
+mailings.csv
+engage_forAB.csv
+jobs.csv

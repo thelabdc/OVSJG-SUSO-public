@@ -1,15 +1,18 @@
 # python cruft
 __pycache__
-.ipynb_checkpoints
 .cache
+.ipynb_checkpoints
+.pytest_cache
+.venv
 *.egg-info
+venv
 
 # vim cruft
 *.swp
 
 # build files
 *.pdf
-venv
 
 # data files
 data
+.env

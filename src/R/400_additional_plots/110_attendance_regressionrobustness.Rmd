@@ -1,0 +1,551 @@
+---
+title: Regressions with attendance robustness checks
+author: Rebecca Johnson
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+header-includes:
+  - \usepackage{float,booktabs,longtable,tabu,array}
+  - \usepackage[small]{caption}
+  - \captionsetup[table]{position=bottom}
+  - \floatplacement{figure}{H}  #make every figure with caption = h, this was the fix
+  - \floatplacement{table}{H}  #make every figure with caption = h, this was the fix
+output:
+  pdf_document:
+    fig_caption: yes
+    fig_height: 9
+    fig_width: 9
+    latex_engine: xelatex
+    keep_tex: true
+    keep_md: true
+    toc: true
+geometry: "left=1in,right=1in,top=1in,bottom=1in"
+graphics: yes
+fontsize: 11pt
+---
+
+# Import packages and load data
+
+
+```{r, include=FALSE, echo=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(MASS)
+library(stargazer)
+library(here)
+
+source(here("src", "R", "400_additional_plots", "000_rmd_setup.R"))
+
+DATA_DIR <- here("data")
+OUTPUT_DIR <- here("output")
+```
+
+
+```{r}
+attendance_analytic <- read.csv(file.path(DATA_DIR, "attendance_readyforregressions.csv")) %>%
+  filter(!is.na(is_treatment))
+
+print(sprintf(
+  "In the end-of-year attendance df, there are %s tx, %s control",
+  nrow(attendance_analytic %>% filter(is_treatment == "True")),
+  nrow(attendance_analytic %>% filter(is_treatment == "False"))
+))
+```
+
+
+
+# 1. Logistic regression for binary outcomes
+
+
+## 1.1. No controls
+
+
+```{r}
+truancy_binary_nocontrols <- glm(truant_indicator ~ is_treatment,
+  data = attendance_analytic,
+  family = "binomial"
+)
+```
+
+
+```{r}
+chronic_absenteeism_nocontrols <- glm(chronicabsent_indicator ~ is_treatment,
+  data = attendance_analytic,
+  family = "binomial"
+)
+```
+
+
+## 1.2 With controls
+
+
+### 1.2.1 Truancy
+
+
+```{r}
+run_binary_reg <- function(outcome_name, control_vars, data) {
+  reg_formula <- formula(sprintf("%s ~ is_treatment + %s", outcome_name, paste(control_vars,
+    collapse = "+"
+  )))
+
+  reg_object <- glm(reg_formula, data = data, family = "binomial")
+  return(reg_object)
+}
+```
+
+
+```{r}
+control_varnames_noschoolFE <- c(
+  "race_broadercat_Hispanic", "race_broadercat_White", "race_broadercat_Other",
+  "gender_F", "LEPIndicator", "HomelessIndicatorOSSE",
+  "FarmsStatusSISdesc",
+  "AtRiskIndicator", "Economically_Disadvantaged"
+)
+
+truancy_wcontrols_noschoolFE <- run_binary_reg(
+  "truant_indicator",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+
+
+control_varnames_schoolFE <- c(control_varnames_noschoolFE, "Enr_SchoolName")
+truancy_wcontrols_schoolFE <- run_binary_reg(
+  "truant_indicator",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+### 1.2.2 Chronic absenteeism
+
+
+```{r}
+ca_wcontrols_noschoolFE <- run_binary_reg(
+  "chronicabsent_indicator",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+ca_wcontrols_schoolFE <- run_binary_reg(
+  "chronicabsent_indicator",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+# 2. Linear regression for counts
+
+
+```{r}
+run_linear_reg <- function(outcome_name, control_vars, data) {
+  reg_formula <- formula(sprintf("%s ~ is_treatment + %s", outcome_name, paste(control_vars,
+    collapse = "+"
+  )))
+
+  reg_object <- lm(reg_formula, data = data)
+  return(reg_object)
+}
+```
+
+
+## 2.1 Unexcused
+
+
+```{r}
+unexcount_obs_nocontrols <- lm(diff_unexcused_observeddelivery ~ is_treatment,
+  data = attendance_analytic
+)
+unexcount_obs_wcontrols_noschoolFE <- run_linear_reg(
+  "diff_unexcused_observeddelivery",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+unexcount_obs_wcontrols_schoolFE <- run_linear_reg(
+  "diff_unexcused_observeddelivery",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+```{r}
+unexcount_median_nocontrols <- lm(diff_unexcused_mediandelivery ~ is_treatment,
+  data = attendance_analytic
+)
+unexcount_median_wcontrols_noschoolFE <- run_linear_reg(
+  "diff_unexcused_mediandelivery",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+unexcount_median_wcontrols_schoolFE <- run_linear_reg(
+  "diff_unexcused_mediandelivery",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+## 2.2 Excused or unexcused
+
+
+```{r}
+unexandexcount_obs_nocontrols <- lm(diff_excusedorunexcused_observeddelivery ~ is_treatment,
+  data = attendance_analytic
+)
+unexandexcount_obs_wcontrols_noschoolFE <- run_linear_reg(
+  "diff_excusedorunexcused_observeddelivery",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+unexandexcount_obs_wcontrols_schoolFE <- run_linear_reg(
+  "diff_excusedorunexcused_observeddelivery",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+```{r}
+unexandexcount_median_nocontrols <- lm(diff_excusedorunexcused_mediandelivery ~ is_treatment,
+  data = attendance_analytic
+)
+unexandexcount_median_wcontrols_noschoolFE <- run_linear_reg(
+  "diff_excusedorunexcused_mediandelivery",
+  control_varnames_noschoolFE,
+  attendance_analytic
+)
+unexandexcount_median_wcontrols_schoolFE <- run_linear_reg(
+  "diff_excusedorunexcused_mediandelivery",
+  control_varnames_schoolFE,
+  attendance_analytic
+)
+```
+
+
+# 3. Negative binomial for counts
+
+
+## Prepare data
+
+
+```{r}
+## log the exposure/school days var
+schoolday_cols <- grep("diff\\_schooldays", colnames(attendance_analytic), value = TRUE)
+
+
+schooldays_logged <- log(attendance_analytic[schoolday_cols])
+colnames(schooldays_logged) <- sprintf("%s_logged", schoolday_cols)
+schooldays_logged[schooldays_logged < 0] <- 0 # for students who had no valid school days in two-week period, replace log(0) = -inf, with zero
+attendance_analytic_woffset <- cbind.data.frame(attendance_analytic, schooldays_logged)
+```
+
+
+```{r}
+attendance_analytic_woffset_complete <- attendance_analytic_woffset %>% filter(!is.na(diff_unexcused_observeddelivery))
+print(sprintf(
+  "In the short term attendance df, there are %s tx, %s control",
+  nrow(attendance_analytic_woffset_complete %>% filter(is_treatment == "True")),
+  nrow(attendance_analytic_woffset_complete %>% filter(is_treatment == "False"))
+))
+```
+
+
+
+```{r}
+run_negbin_reg <- function(outcome_name, control_vars, offset_var, data) {
+  if (length(control_vars) != 0) {
+    reg_formula <- formula(sprintf(
+      "%s ~ is_treatment + offset(%s) + %s", outcome_name, offset_var,
+      paste(control_vars,
+        collapse = "+"
+      )
+    ))
+  } else {
+    reg_formula <- formula(sprintf("%s ~ is_treatment + offset(%s)", outcome_name, offset_var))
+  }
+
+
+  reg_object <- glm.nb(reg_formula, data = data)
+  return(reg_object)
+}
+```
+
+
+## 3.1 Unexcused
+
+
+```{r}
+unexcount_obs_nocontrols_negbin <- run_negbin_reg("diff_unexcused_observeddelivery",
+  c(),
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexcount_obs_wcontrols_noschoolFE_negbin <- run_negbin_reg("diff_unexcused_observeddelivery",
+  control_varnames_noschoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexcount_obs_wcontrols_schoolFE_negbin <- run_negbin_reg("diff_unexcused_observeddelivery",
+  control_varnames_schoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+```
+
+
+```{r}
+unexcount_median_nocontrols_negbin <- run_negbin_reg("diff_unexcused_mediandelivery",
+  c(),
+  "diff_schooldays_mediandelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexcount_median_wcontrols_noschoolFE_negbin <- run_negbin_reg("diff_unexcused_mediandelivery",
+  control_varnames_noschoolFE,
+  "diff_schooldays_mediandelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexcount_median_wcontrols_schoolFE_negbin <- run_negbin_reg("diff_unexcused_mediandelivery",
+  control_varnames_schoolFE,
+  "diff_schooldays_mediandelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+```
+
+
+## 3.2 Excused
+
+
+```{r}
+unexandexcount_obs_nocontrols_negbin <- run_negbin_reg("diff_excusedorunexcused_observeddelivery",
+  c(),
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexandexcount_obs_wcontrols_noschoolFE_negbin <- run_negbin_reg("diff_excusedorunexcused_observeddelivery",
+  control_varnames_noschoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexandexcount_obs_wcontrols_schoolFE_negbin <- run_negbin_reg("diff_excusedorunexcused_observeddelivery",
+  control_varnames_schoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+```
+
+
+```{r}
+unexandexcount_median_nocontrols_negbin <- run_negbin_reg("diff_excusedorunexcused_mediandelivery",
+  c(),
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexandexcount_median_wcontrols_noschoolFE_negbin <- run_negbin_reg("diff_excusedorunexcused_mediandelivery",
+  control_varnames_noschoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+unexandexcount_median_wcontrols_schoolFE_negbin <- run_negbin_reg("diff_excusedorunexcused_mediandelivery",
+  control_varnames_schoolFE,
+  "diff_schooldays_observeddelivery_logged",
+  data = attendance_analytic_woffset_complete
+)
+```
+
+
+# 4. Write to stargazer
+
+
+```{r}
+startru_objects <- lapply(grep("truancy", ls(), value = TRUE), get)
+```
+
+
+```{r}
+stargazer(startru_objects,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/truancy_logit.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+ca_objects <- lapply(grep("chronic|^ca\\_", ls(), value = TRUE), get)
+ca_objects_reorder <- ca_objects[c(3, 1, 2)]
+```
+
+
+```{r}
+stargazer(ca_objects_reorder,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/chronicabs_logit.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+unex_obs_objects <- lapply(
+  setdiff(
+    grep("unexcount\\_obs", ls(), value = TRUE),
+    grep("unexcount\\_obs.*negbin", ls(), value = TRUE)
+  ),
+  get
+)
+stargazer(unex_obs_objects,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/unex_obs_linear.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+unex_median_objects <- lapply(
+  setdiff(
+    grep("unexcount\\_median", ls(), value = TRUE),
+    grep("unexcount\\_median.*negbin", ls(), value = TRUE)
+  ),
+  get
+)
+stargazer(unex_median_objects,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/unex_median_linear.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+rm(unex_obs_objects_negbin)
+```
+
+
+```{r}
+unex_obs_objects_negbin <- lapply(
+  grep("unexcount\\_obs.*negbin", ls(), value = TRUE),
+  get
+)
+```
+
+
+```{r}
+stargazer(unex_obs_objects_negbin,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/unex_obs_negbin.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+starunex_median_objects_negbin <- lapply(
+  grep("^unexcount\\_median.*negbin", ls(), value = TRUE),
+  get
+)
+```
+
+
+```{r}
+stargazer(starunex_median_objects_negbin,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/unex_median_negbin.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+starex_obs_objects <- lapply(
+  setdiff(
+    grep("unexandexcount\\_obs", ls(), value = TRUE),
+    grep("unexandexcount\\_obs.*negbin", ls(), value = TRUE)
+  ),
+  get
+)
+```
+
+
+```{r}
+stargazer(starex_obs_objects,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/total_obs_linear.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+starex_med_objects <- lapply(
+  setdiff(
+    grep("unexandexcount\\_median", ls(), value = TRUE),
+    grep("unexandexcount\\_median.*negbin", ls(), value = TRUE)
+  ),
+  get
+)
+```
+
+
+```{r}
+stargazer(starex_med_objects,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/total_median_linear.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+starex_obs_objects_negbin <- lapply(
+  grep("unexandexcount\\_obs.*negbin", ls(), value = TRUE),
+  get
+)
+```
+
+
+```{r}
+stargazer(starex_obs_objects_negbin,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/total_obs_negbin.tex",
+    OUTPUT_DIR
+  )
+)
+```
+
+
+```{r}
+ex_median_objects_negbin <- lapply(
+  grep("unexandexcount\\_median.*negbin", ls(), value = TRUE),
+  get
+)
+```
+
+
+```{r}
+stargazer(ex_median_objects_negbin,
+  omit = "Enr_SchoolName", report = "vcsp*",
+  out = sprintf(
+    "%s/tables/total_median_negbin.tex",
+    OUTPUT_DIR
+  )
+)
+```
