@@ -68,7 +68,7 @@ These files require access to The Lab's OSSE-wide attendance data files for SY 1
 Any researcher wanting to rerun these analyses should contact The Lab @ DC at
 thelab@dc.gov to discuss potential data sharing agreements.
 
-1. [015_convert_to_parquet.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/015_convert_to_parquet.ipynb)
+1. [015_convert_to_parquet.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/015_convert_to_parquet.ipynb)
 
   - _Takes in_:
     - Zipped attendance files for DCPS and PCS for 16-17 and 17-18
@@ -79,7 +79,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
   - _Outputs_:
     - Parquet format attendance files for DCPS and PCS for 16-17 and 17-18
 
-1. [020_createlookuptable_suso_osse.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/020_createlookuptable_suso_osse.ipynb)
+2. [020_createlookuptable_suso_osse.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/020_createlookuptable_suso_osse.ipynb)
 
   - _Takes in_:
     - Data on SUSO participants: created as part of [010_merge_and_wrangle_suso.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/010_merge_and_wrangle_suso.ipynb)
@@ -94,7 +94,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
   - _Outputs_:
     - lookup_suso_osse: a table stored in the database with a student's suso id, his or her OSSE ID (USI), and whether exact or fuzzy match; used in next script to subset long-form OSSE attendance data (student-day) to SUSO students
 
-2. [030_attendance_cleaning.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/030_attendance_cleaning.ipynb)
+3. [030_attendance_cleaning.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/030_attendance_cleaning.ipynb)
 
   - _Takes in_:
     - lookup_osse_suso: lookup table that has USIs (osse attendance data unique identifiers) for those referred to suso
@@ -108,7 +108,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
     - dcps_sy1718_attendanceoutcomes_suso: used for intervention year analysis
     - charter_sy1617_attendanceoutcomes_suso: used for PAP baselines
 
-3. [040_descriptives_previoussy_forPAP.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/040_descriptives_previoussy_forPAP.ipynb)
+4. [040_descriptives_previoussy_forPAP.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/040_descriptives_previoussy_forPAP.ipynb)
 
  - _Takes in_:
     - Tables from previous script: dcps/charter_sy1617...
@@ -121,7 +121,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
 
   - _Outputs_: figures for pre-analysis plan and "background" section of writeup
 
-4. [050_cleanstudents_whoswitchsystems.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/src/notebooks/100_pull_and_clean_data/050_cleanstudents_whoswitchsystems.ipynb)
+5. [050_cleanstudents_whoswitchsystems.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/100_pull_and_clean_data/050_cleanstudents_whoswitchsystems.ipynb)
 
  - _Takes in_:
     - Tables attendance_cleaning_sql that reflect SUSO year attendance: dcps/charter_sy1718
@@ -136,7 +136,7 @@ thelab@dc.gov to discuss potential data sharing agreements.
 
 These notebooks provide the descriptive analyses that appear in the report.
 
-1. [060_sample_descriptives.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/src/200_descriptives/060_sample_descriptives.ipynb)
+1. [060_sample_descriptives.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/200_descriptives/060_sample_descriptives.ipynb)
 
 - _Takes in_:
     - Parquet files of all DCPS and PCS students in SY 17-18
@@ -148,7 +148,7 @@ These notebooks provide the descriptive analyses that appear in the report.
 
 - _Outputs_: figures for writeup saved in `output`
 
-2. [070_attendance_descriptives.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/src/200_descriptives/070_attendance_descriptives.ipynb)
+2. [070_attendance_descriptives.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/200_descriptives/070_attendance_descriptives.ipynb)
 
 - _Takes in_: data created in earlier scripts
     - Attendance end-of-year outcomes: attendance_eoy_wsuso.pkl
@@ -165,13 +165,13 @@ These notebooks provide the descriptive analyses that appear in the report.
     - attendance_readyforAB.pkl
     - attendance_readyforregressions.csv
 
-## Conduct A/B testing and regression analyses
+## Conduct A/B testing and regression analyses (src/notebooks/300_analysis)
 
 These scripts actually perform the analysis on the data that we have generated for the
 SUSO project. If you have a copy of the data generated in the previous scripts, then
 you should be able to run these files front to back.
 
-1. [080_attendance_ABtests.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/300_analysis/080_attendance_ABtests.ipynb)
+1. [080_attendance_ABtests.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/300_analysis/080_attendance_ABtests.ipynb)
 
 - _Takes in_:
     - attendance_readyforAB.pkl (created in previous script)
@@ -182,7 +182,13 @@ you should be able to run these files front to back.
 
 - _Outputs_: figures for writeup and attendanceoutcomes_posteriors_toplot.csv used in next script
 
-2. [090_attendance_ABtests_additionalplots.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/300_analysis/090_attendance_ABtests_additionalplots.ipynb)
+2. [090_analyze_engagement.ipynb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/notebooks/300_analysis/090_analyze_engagement.ipynb)
+
+Original notebook for analyzing impact on family engagement.
+
+## Visualize results and R-based regression robustness (src/R/400_additional_plots)
+
+1. [100_attendance_ABtests_additionalplots.Rmdb](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/R/400_additional_plots/100_attendance_ABtests_additionalplots.Rmd)
 
 - _Takes in_:
     -  attendanceoutcomes_posteriors_toplot.csv
@@ -193,7 +199,7 @@ you should be able to run these files front to back.
 - _Outputs_: figures for writeup
 
 
-3. [100_attendance_regressionrobustness.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/300_analysis/100_attendance_regressionrobustness.ipynb)
+2. [110_attendance_regressionrobustness.Rmd](https://github.com/thelabdc/OVSJG-SUSO-public/blob/master/src/R/400_additional_plots/110_attendance_regressionrobustness.Rmd)
 
 - _Takes in_:
     -  attendance_readyforregressions.csv
@@ -203,9 +209,6 @@ you should be able to run these files front to back.
 
 - _Outputs_: figures and tables for writeup; tables are latex via stargazer and then copied to a .tex file
 
-4. [110_analyze_engagement.ipynb](https://github.com/thelabdc/OVSJG-SUSO/blob/master/notebooks/300_analysis/110_analyze_engagement.ipynb)
-
-Original notebook for analyzing impact on family engagement.
 
 
 
