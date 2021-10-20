@@ -1,6 +1,7 @@
 # OVSJG-SUSO
 
-Analyses related to the SUSO CBO Outreach Support Project
+Code for ["Does outreach encouraging families to engage with community-based organizations increase engagement and school attendance?"](https://osf.io/9w5ye/)
+
 
 ## Automation
 
