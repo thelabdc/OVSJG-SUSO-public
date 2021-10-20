@@ -1,4 +1,0 @@
-include README.md
-include requirements.txt
-include suso/templates/*.j2
-include suso/templates/images/*
